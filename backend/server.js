@@ -7,7 +7,17 @@ const app = express();
 const PORT= process.env.PORT || 8080;
 
 app.use(express.json());
-app.use(cors());
+
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "https://your-frontend.vercel.app"
+  ],
+  methods: ["GET", "POST", "DELETE", "PUT"]
+}));
+
+
 app.use("/api", chatRoutes);
 // app.listen(PORT, ()=>{
 //     console.log(`server running on ${PORT}`);
