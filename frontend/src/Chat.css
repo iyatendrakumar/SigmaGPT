@@ -1,32 +1,46 @@
 .chats {
-    max-width: 700px;
-    padding: 8rem;
-    overflow-y: auto; /* allows scroll only when needed */
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE/Edge */
+  max-width: 700px;
+  padding: 8rem;
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
 }
 
 /* Chrome, Safari, Opera */
 .chats::-webkit-scrollbar {
-    display: none;
+  display: none;
 }
 
 .userDiv {
-    display:flex;
-    justify-content:flex-end;
-    font-size: 0.9rem;
+  display: flex;
+  justify-content: flex-end;
+  font-size: 0.9rem;
 }
+
 .gptDiv {
-    text-align:left;
-    font-size:0.9rem;
-}.userMessage {
-    background-color: #323232;
-    padding:10px 20px;
-    border-radius:14px;
-    margin-left:15rem;
-    max-width:500px;
-    width:fit-content;
+  display: flex;
+  justify-content: flex-start;
+  font-size: 0.9rem;
 }
+
+/* ---------- USER MESSAGE ---------- */
+.userMessage {
+  background: rgba(59, 130, 246, 0.15); /* blue tint */
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  padding: 10px 16px;
+  border-radius: 14px;
+  margin-left: 15rem;
+  max-width: 500px;
+  width: fit-content;
+}
+
+/* ---------- GPT MESSAGE ---------- */
 .gptMessage {
-    
+  background: rgba(124, 58, 237, 0.15); /* purple tint */
+  border: 1px solid rgba(124, 58, 237, 0.4);
+  padding: 10px 16px;
+  border-radius: 14px;
+  margin-right: 15rem;
+  max-width: 500px;
+  width: fit-content;
 }

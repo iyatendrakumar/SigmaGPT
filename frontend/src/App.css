@@ -1,4 +1,32 @@
-*{
+:root {
+  /* Brand colors (from logo) */
+  --blue: #3B82F6;
+  --purple: #7C3AED;
+  --pink: #EC4899;
+
+  /* Backgrounds */
+  --bg-main: #0F172A;      /* main app background */
+  --bg-secondary: #111827; /* sidebar / panels */
+  --bg-card: #1F2933;
+
+  /* Text */
+  --text-primary: #ECECEC;
+  --text-muted: #9CA3AF;
+
+  /* Borders & effects */
+  --border-subtle: #2D3748;
+
+  /* Gradients */
+  --gradient-main: linear-gradient(
+    135deg,
+    var(--blue),
+    var(--purple),
+    var(--pink)
+  );
+}
+
+
+/* *{
     color: #ececec;
     font-family: Roboto, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
@@ -12,4 +40,29 @@ body {
 .app {
     background-color: #212121;
     display:flex;
+} */
+
+* {
+  color: var(--text-primary);
+  font-family: Roboto, 'Open Sans', 'Helvetica Neue', sans-serif;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-main);
+}
+
+.app {
+  background-color: var(--bg-main);
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ---------- Utility Classes ---------- */
+.accent {
+  background: var(--gradient-main);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
