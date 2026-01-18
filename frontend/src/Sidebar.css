@@ -58,13 +58,15 @@ button:hover {
 }
 
 .history li:hover {
-  background: rgba(124, 58, 237, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
 }
 
 /* ---------- ACTIVE THREAD ---------- */
 .highlighted {
-  background: rgba(59, 130, 246, 0.18);
-  border-left: 3px solid var(--blue);
+  background: rgba(124, 58, 237, 0.15);
+  color: var(--text-primary);
+  border-left: 3px solid var(--purple);
 }
 
 /* ---------- DELETE ICON ---------- */

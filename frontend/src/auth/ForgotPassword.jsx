@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { sendResetOtp, resetPassword } from "../services/authService";
+import "./auth.css";
 
 function ForgotPassword({ onBack }) {
   const [step, setStep] = useState(1);
@@ -59,63 +60,57 @@ function ForgotPassword({ onBack }) {
   };
 
   return (
-    <div className="authContainer">
-      {step === 1 ? (
-        <>
-          <h2>Forgot Password</h2>
-
-          <form onSubmit={sendOtp}>
-            <input
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-
-            {error && <p className="error">{error}</p>}
-
-            <button disabled={loading}>
-              {loading ? "Sending OTP..." : "Send OTP"}
-            </button>
-          </form>
-
-          <p className="authHint">
-            <span
-              style={{ cursor: "pointer", textDecoration: "underline" }}
-              onClick={onBack}
-            >
-              Back to login
-            </span>
-          </p>
-        </>
-      ) : (
-        <>
-          <h2>Reset Password</h2>
-
-          <form onSubmit={reset}>
-            <input
-              placeholder="OTP"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              required
-            />
-
-            <input
-              type="password"
-              placeholder="New Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-
-            {error && <p className="error">{error}</p>}
-
-            <button disabled={loading}>
-              {loading ? "Resetting..." : "Reset Password"}
-            </button>
-          </form>
-        </>
-      )}
+    <div className="authWrapper">
+      <div className="authContainer">
+        {step === 1 ? (
+          <>
+            <h2>Forgot Password</h2>
+            <form onSubmit={sendOtp}>
+              <input
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              {error && <p className="error">{error}</p>}
+              <button disabled={loading}>
+                {loading ? "Sending OTP..." : "Send OTP"}
+              </button>
+            </form>
+            <p className="authHint">
+              <span
+                style={{ cursor: "pointer", textDecoration: "underline" }}
+                onClick={onBack}
+              >
+                Back to login
+              </span>
+            </p>
+          </>
+        ) : (
+          <>
+            <h2>Reset Password</h2>
+            <form onSubmit={reset}>
+              <input
+                placeholder="OTP"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                required
+              />
+              <input
+                type="password"
+                placeholder="New Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              {error && <p className="error">{error}</p>}
+              <button disabled={loading}>
+                {loading ? "Resetting..." : "Reset Password"}
+              </button>
+            </form>
+          </>
+        )}
+      </div>
     </div>
   );
 }

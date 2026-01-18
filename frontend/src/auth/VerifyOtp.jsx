@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { verifyRegisterOtp } from "../services/authService";
+import "./auth.css";
 
 function VerifyOtp({ email, onSuccess }) {
   const [otp, setOtp] = useState("");
@@ -80,42 +81,40 @@ function VerifyOtp({ email, onSuccess }) {
   };
 
   return (
-    <div className="authContainer">
-      <h2>Verify OTP</h2>
-
-      <form onSubmit={handleVerify}>
-        <input
-          placeholder="Enter OTP"
-          value={otp}
-          onChange={(e) => setOtp(e.target.value)}
-          required
-        />
-
-        {error && <p className="error">{error}</p>}
-        {info && <p className="info">{info}</p>}
-
-        <button disabled={loading}>
-          {loading ? "Verifying..." : "Verify OTP"}
-        </button>
-      </form>
-
-      <p className="authHint">
-        Didn’t receive OTP?{" "}
-        <span
-          style={{
-            cursor: timer === 0 ? "pointer" : "not-allowed",
-            textDecoration: "underline",
-            opacity: timer === 0 ? 1 : 0.6
-          }}
-          onClick={resendOtp}
-        >
-          {resending
-            ? "Resending..."
-            : timer > 0
-            ? `Resend in ${timer}s`
-            : "Resend OTP"}
-        </span>
-      </p>
+    <div className="authWrapper">
+      <div className="authContainer">
+        <h2>Verify OTP</h2>
+        <form onSubmit={handleVerify}>
+          <input
+            placeholder="Enter OTP"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+            required
+          />
+          {error && <p className="error">{error}</p>}
+          {info && <p className="info">{info}</p>}
+          <button disabled={loading}>
+            {loading ? "Verifying..." : "Verify OTP"}
+          </button>
+        </form>
+        <p className="authHint">
+          Didn’t receive OTP?{" "}
+          <span
+            style={{
+              cursor: timer === 0 ? "pointer" : "not-allowed",
+              textDecoration: "underline",
+              opacity: timer === 0 ? 1 : 0.6
+            }}
+            onClick={resendOtp}
+          >
+            {resending
+              ? "Resending..."
+              : timer > 0
+              ? `Resend in ${timer}s`
+              : "Resend OTP"}
+          </span>
+        </p>
+      </div>
     </div>
   );
 }
