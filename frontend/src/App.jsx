@@ -1,36 +1,57 @@
-
 import "./App.css";
-import Sidebar from "./Sidebar.jsx";
-import ChatWindow from "./ChatWindow.jsx";
-import {MyContext} from "./MyContext.jsx";
-import {useState} from 'react';
-import {v1 as uuidv1} from 'uuid';
+import { useContext, useEffect } from "react";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { MyContext } from "./context/MyContext";
 
+import Sidebar from "./Sidebar";
+import ChatWindow from "./ChatWindow";
+import AuthContainer from "./auth/AuthContainer";
 
 function App() {
-  const  [prompt, setPrompt] = useState("");
-  const [reply, setReply] = useState(null);
-  const [currThreadId, setCurrThreadId]= useState(uuidv1());
-  const [prevChats, setPrevChats] = useState([]);
-  const [newChat, setNewChat] = useState(true);
-  const [allThreads, setAllThreads] = useState([0]);
-  const providerValues = {
-    prompt, setPrompt, 
-    reply, setReply,
-    currThreadId, setCurrThreadId,
-    newChat, setNewChat,
-    prevChats, setPrevChats,
-    allThreads, setAllThreads
-  };
+  const { token } = useContext(MyContext);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  /* ================= ROUTE GUARD ================= */
+  useEffect(() => {
+    if (!token && location.pathname === "/chat") {
+      navigate("/login", { replace: true });
+    }
+
+    if (token && (location.pathname === "/" || location.pathname === "/login")) {
+      navigate("/chat", { replace: true });
+    }
+  }, [token, location.pathname]);
 
   return (
     <div className="app">
-      <MyContext.Provider value = {providerValues}>
-        <Sidebar></Sidebar>
-        <ChatWindow></ChatWindow>
-      </MyContext.Provider>
+      <Routes>
+        {/* AUTH */}
+        <Route path="/login" element={<AuthContainer />} />
+        <Route path="/register" element={<AuthContainer />} />
+        <Route path="/verify-otp" element={<AuthContainer />} />
+        <Route path="/forgot-password" element={<AuthContainer />} />
+
+        {/* CHAT */}
+        <Route
+          path="/chat"
+          element={
+            token ? (
+              <>
+                <Sidebar />
+                <ChatWindow />
+              </>
+            ) : (
+              <AuthContainer />
+            )
+          }
+        />
+
+        {/* FALLBACK */}
+        <Route path="*" element={<AuthContainer />} />
+      </Routes>
     </div>
-  )
+  );
 }
 
 export default App;

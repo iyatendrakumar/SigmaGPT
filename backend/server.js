@@ -1,51 +1,28 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import mongoose from "mongoose";
 import chatRoutes from "./routes/chat.js";
+import authRoutes from "./routes/auth.js";
+import connectDB from "./config/db.js";
+
 const app = express();
 const PORT= process.env.PORT || 8080;
 
-app.use(express.json());
 
 app.use(cors({
   origin: [
-    "https://sigma-gpt-lilac.vercel.app"
+    "https://sigma-gpt-lilac.vercel.app",
+    "http://localhost:5173"
   ],
-  methods: ["GET", "POST", "DELETE", "PUT"]
+  methods: ["GET", "POST", "DELETE", "PUT"],
+  credentials:true
 }));
 
+app.use(express.json());
 
+//Routes
 app.use("/api", chatRoutes);
-// app.listen(PORT, ()=>{
-//     console.log(`server running on ${PORT}`);
-//     connectDB();
-// });
-
-// const connectDB = async() =>{
-//     try {
-//         await mongoose.connect(process.env.MONGODB_URI);
-//         console.log("Connected with Database!");
-//     } catch(error){
-//         console.log("Failed to connect to DB", error);
-//     }
-// };
-// Connect DB first, then start server
-const startServer = async () => {
-  try {
-    await mongoose.connect(process.env.MONGODB_URI);
-    console.log("Connected with Database!");
-
-    app.listen(PORT, () => {
-      console.log(`Server running on ${PORT}`);
-    });
-  } catch (error) {
-    console.log("Failed to connect to DB", error);
-  }
-};
-
-startServer();
-
+app.use("/api/auth", authRoutes);
 
 app.post("/test", async (req, res)=>{
     
@@ -72,3 +49,10 @@ app.post("/test", async (req, res)=>{
         console.log(err);
     }
 });
+
+//DB + SERVER
+connectDB();
+
+app.listen(PORT, () => {
+      console.log(`Server running on ${PORT}`);
+  });

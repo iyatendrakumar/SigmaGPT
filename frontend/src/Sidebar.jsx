@@ -1,108 +1,153 @@
 import "./Sidebar.css";
 import { useContext, useEffect } from "react";
-import { MyContext } from "./MyContext.jsx";
-import {v1 as uuidv1} from "uuid";
+import { MyContext } from "./context/MyContext";
+import { v1 as uuidv1 } from "uuid";
+import { useNavigate } from "react-router-dom";
 
 function Sidebar() {
-    const {allThreads, setAllThreads, currThreadId, setNewChat, setPrompt, setReply, setCurrThreadId, setPrevChats} = useContext(MyContext);
+  const {
+    token,
+    user,
+    logout,
+    allThreads,
+    setAllThreads,
+    currThreadId,
+    setNewChat,
+    setPrompt,
+    setReply,
+    setCurrThreadId,
+    setPrevChats
+  } = useContext(MyContext);
 
-    const getAllThreads = async () => {
-        try {
-            // const response = await fetch("http://localhost:8080/api/thread");
-            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/thread`);
+  const navigate = useNavigate();
 
-            const res = await response.json();
-            const filteredData = res.map(thread => ({threadId: thread.threadId, title: thread.title}));
-            //console.log(filteredData);
-            setAllThreads(filteredData);
-        } catch(err) {
-            console.log(err);
+  /* ================= FETCH THREADS ================= */
+  const getAllThreads = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/api/thread", {
+        headers: {
+          Authorization: `Bearer ${token}`
         }
-    };
+      });
 
-    useEffect(() => {
-        getAllThreads();
-    }, [currThreadId])
+      const res = await response.json();
 
-
-    const createNewChat = () => {
-        setNewChat(true);
-        setPrompt("");
-        setReply(null);
-        setCurrThreadId(uuidv1());
-        setPrevChats([]);
+      setAllThreads(
+        res.map(thread => ({
+          threadId: thread.threadId,
+          title: thread.title
+        }))
+      );
+    } catch (err) {
+      console.error(err);
     }
+  };
 
-    const changeThread = async (newThreadId) => {
-        setCurrThreadId(newThreadId);
+  useEffect(() => {
+    if (token) getAllThreads();
+  }, [token]);
 
-        try {
-            // const response = await fetch(`http://localhost:8080/api/thread/${newThreadId}`);
-            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/thread/${newThreadId}`);
+  /* ================= NEW CHAT ================= */
+  const createNewChat = () => {
+    setNewChat(true);
+    setPrompt("");
+    setReply(null);
+    setCurrThreadId(uuidv1());
+    setPrevChats([]);
+  };
 
-            const res = await response.json();
-            console.log(res);
-            setPrevChats(res);
-            setNewChat(false);
-            setReply(null);
-        } catch(err) {
-            console.log(err);
+  /* ================= CHANGE THREAD ================= */
+  const changeThread = async (threadId) => {
+    setCurrThreadId(threadId);
+
+    try {
+      const res = await fetch(
+        `http://localhost:8080/api/thread/${threadId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         }
-    }   
+      );
 
-    const deleteThread = async (threadId) => {
-        try {
-            // const response = await fetch(`http://localhost:8080/api/thread/${threadId}`, {method: "DELETE"});
-            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/thread/${threadId}`, {
-                method: "DELETE" });
-
-            const res = await response.json();
-            console.log(res);
-
-            //updated threads re-render
-            setAllThreads(prev => prev.filter(thread => thread.threadId !== threadId));
-
-            if(threadId === currThreadId) {
-                createNewChat();
-            }
-
-        } catch(err) {
-            console.log(err);
-        }
+      const data = await res.json();
+      setPrevChats(data);
+      setNewChat(false);
+      setReply(null);
+    } catch (err) {
+      console.error(err);
     }
+  };
 
-    return (
-        <section className="sidebar">
-            <button onClick={createNewChat}>
-                <img src="/sigmaGPT_logo.png" alt="SigmaGPT logo" className="logo"></img>
-                <span><i className="fa-solid fa-pen-to-square"></i></span>
-            </button>
+  /* ================= DELETE THREAD ================= */
+  const deleteThread = async (threadId) => {
+    try {
+      await fetch(`http://localhost:8080/api/thread/${threadId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
 
+      setAllThreads(prev =>
+        prev.filter(t => t.threadId !== threadId)
+      );
 
-            <ul className="history">
-                {
-                    allThreads?.map((thread, idx) => (
-                        <li key={idx} 
-                            onClick={() => changeThread(thread.threadId)}
-                            className={thread.threadId === currThreadId ? "highlighted": " "}
-                        >
-                            {thread.title}
-                            <i className="fa-solid fa-trash"
-                                onClick={(e) => {
-                                    e.stopPropagation(); //stop event bubbling
-                                    deleteThread(thread.threadId);
-                                }}
-                            ></i>
-                        </li>
-                    ))
-                }
-            </ul>
- 
-            <div className="sign">
-                <p>By Yatendra Kumar &hearts;</p>
-            </div>
-        </section>
-    )
+      if (threadId === currThreadId) {
+        createNewChat();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  /* ================= LOGOUT ================= */
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
+  return (
+    <section className="sidebar">
+      <button onClick={createNewChat}>
+        <img src="/sigmaGPT_logo.png" alt="SigmaGPT logo" className="logo" />
+        <span>
+          <i className="fa-solid fa-pen-to-square"></i>
+        </span>
+      </button>
+
+      <ul className="history">
+        {allThreads.map((thread, idx) => (
+          <li
+            key={idx}
+            className={thread.threadId === currThreadId ? "highlighted" : ""}
+            onClick={() => changeThread(thread.threadId)}
+          >
+            {thread.title}
+            <i
+              className="fa-solid fa-trash"
+              onClick={(e) => {
+                e.stopPropagation();
+                deleteThread(thread.threadId);
+              }}
+            />
+          </li>
+        ))}
+      </ul>
+
+      {/* USER INFO */}
+      <div className="sign">
+        <p><strong>{user?.name}</strong></p>
+        <p>{user?.email}</p>
+        <p
+          style={{ cursor: "pointer", marginTop: "6px" }}
+          onClick={handleLogout}
+        >
+          Logout
+        </p>
+      </div>
+    </section>
+  );
 }
 
 export default Sidebar;
