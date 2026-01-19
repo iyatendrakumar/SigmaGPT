@@ -20,8 +20,9 @@ function Register({ onOtpSent }) {
       const res = await sendRegisterOtp({ name, email, password });
 
       // ✅ FIX: backend sends "message", not "success"
-      if (!res?.message) {
-        setError("Failed to send OTP");
+      if (!res?.message || res.message !== "OTP sent for registration") {
+        setError(res?.message || "Registration failed");
+        setLoading(false);
         return;
       }
 
@@ -64,7 +65,7 @@ function Register({ onOtpSent }) {
             />
             <span
               className="passwordToggle"
-              onClick={() => setShowPassword(p => !p)}
+              onClick={() => setShowPassword((p) => !p)}
             >
               {showPassword ? "Hide" : "Show"}
             </span>
@@ -79,9 +80,7 @@ function Register({ onOtpSent }) {
 
         <p className="authHint">
           Already have an account?{" "}
-          <span onClick={() => window.location.href = "/login"}>
-            Login
-          </span>
+          <span onClick={() => (window.location.href = "/login")}>Login</span>
         </p>
       </div>
     </div>
