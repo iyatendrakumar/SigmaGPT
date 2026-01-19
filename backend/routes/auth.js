@@ -11,43 +11,36 @@ const router = express.Router();
 
 // SEND OTP
 router.post("/register/send-otp", async (req, res) => {
-  const { name, email, password } = req.body;
+  try {
+    const { name, email, password } = req.body;
 
-  if (!name || !email || !password) {
-    return res.status(400).json({ message: "All fields required" });
-  }
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "All fields required" });
+    }
 
-  const existingUser = await User.findOne({ email });
+    const exists = await User.findOne({ email });
+    if (exists) {
+      return res.status(400).json({ message: "User already exists" });
+    }
 
-  // 🚫 Already registered & verified
-  if (existingUser && existingUser.isVerified) {
-    return res.status(400).json({ message: "User already exists" });
-  }
+    const otp = generateOtp();
+    const hashedPassword = await hashPassword(password);
 
-  const otp = generateOtp();
-  const hashedPassword = await hashPassword(password);
-
-  if (existingUser) {
-    // 🔁 RESEND OTP (overwrite old)
-    existingUser.name = name;
-    existingUser.password = hashedPassword;
-    existingUser.otp = otp;
-    existingUser.otpExpiresAt = Date.now() + 5 * 60 * 1000;
-    await existingUser.save();
-  } else {
-    // 🆕 NEW USER
-    await User.create({
+    const user = await User.create({
       name,
       email,
       password: hashedPassword,
       otp,
-      otpExpiresAt: Date.now() + 5 * 60 * 1000
+      otpExpiresAt: Date.now() + 5 * 60 * 1000,
     });
+
+    await sendOtpMail(email, otp, "registration");
+
+    return res.json({ message: "OTP sent for registration" });
+  } catch (err) {
+    console.error("REGISTER OTP ERROR 👉", err);
+    return res.status(500).json({ message: "Server error" });
   }
-
-  await sendOtpMail(email, otp, "registration");
-
-  res.json({ success: true, message: "OTP sent for registration" });
 });
 
 // VERIFY OTP
