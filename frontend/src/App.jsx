@@ -21,7 +21,7 @@ function App() {
     if (token && (location.pathname === "/" || location.pathname === "/login")) {
       navigate("/chat", { replace: true });
     }
-  }, [token, location.pathname]);
+  }, [token, location.pathname, navigate]);
 
   return (
     <div className="app">

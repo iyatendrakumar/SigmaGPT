@@ -94,11 +94,20 @@
 
 /* Links */
 .authHint {
+
   text-align: center;
+  cursor: pointer;
   font-size: 0.85rem;
   margin-top: 1rem;
   color: var(--text-muted);
 }
+
+
+.authHint span:hover {
+  text-decoration: underline;
+  opacity: 0.9;
+}
+
 
 .passwordField {
   position: relative;
@@ -116,7 +125,7 @@
   top: 50%;
   transform: translateY(-50%);
   font-size: 0.75rem;
-  color: #ffffff;
+  color: var(--text-primary);
   cursor: pointer;
   user-select: none;
 }

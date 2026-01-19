@@ -19,24 +19,25 @@ function Register({ onOtpSent }) {
     try {
       const res = await sendRegisterOtp({ name, email, password });
 
-      if (!res.success) {
-        setError(res.message || "Failed to send OTP");
-        setLoading(false);
+      // ✅ FIX: backend sends "message", not "success"
+      if (!res?.message) {
+        setError("Failed to send OTP");
         return;
       }
 
       onOtpSent({ email });
-    } catch (err) {
+    } catch {
       setError("Something went wrong");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
     <div className="authWrapper">
       <div className="authContainer">
         <h2>Create SigmaGPT Account</h2>
+
         <form onSubmit={handleRegister}>
           <input
             placeholder="Name"
@@ -44,6 +45,7 @@ function Register({ onOtpSent }) {
             onChange={(e) => setName(e.target.value)}
             required
           />
+
           <input
             type="email"
             placeholder="Email"
@@ -51,6 +53,7 @@ function Register({ onOtpSent }) {
             onChange={(e) => setEmail(e.target.value)}
             required
           />
+
           <div className="passwordField">
             <input
               type={showPassword ? "text" : "password"}
@@ -59,27 +62,24 @@ function Register({ onOtpSent }) {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-
             <span
               className="passwordToggle"
-              onClick={() => setShowPassword((p) => !p)}
+              onClick={() => setShowPassword(p => !p)}
             >
               {showPassword ? "Hide" : "Show"}
             </span>
           </div>
 
           {error && <p className="error">{error}</p>}
+
           <button disabled={loading}>
             {loading ? "Sending OTP..." : "Register"}
           </button>
         </form>
-        {/* UX LINK */}
+
         <p className="authHint">
           Already have an account?{" "}
-          <span
-            style={{ cursor: "pointer", textDecoration: "underline" }}
-            onClick={() => (window.location.href = "/login")}
-          >
+          <span onClick={() => window.location.href = "/login"}>
             Login
           </span>
         </p>

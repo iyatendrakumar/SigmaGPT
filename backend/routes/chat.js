@@ -71,7 +71,7 @@ router.post("/chat", authMiddleware, async (req, res) => {
   try {
     let thread = await Thread.findOne({
       threadId,
-      userId: req.user.userId
+      userId: req.user.userId,
     });
 
     if (!thread) {
@@ -79,24 +79,39 @@ router.post("/chat", authMiddleware, async (req, res) => {
         userId: req.user.userId,
         threadId,
         title: message.slice(0, 30),
-        messages: [{ role: "user", content: message }]
+        messages: [],
       });
-    } else {
-      thread.messages.push({ role: "user", content: message });
     }
 
-    const assistantReply = await getOpenApiResponse(message);
+    // 1️⃣ Add user message to DB
+    thread.messages.push({ role: "user", content: message });
 
+    // 2️⃣ Build FULL conversation for GPT
+    const messagesForGPT = thread.messages.map((m) => ({
+      role: m.role,
+      content: m.content,
+    }));
+
+    // 3️⃣ Ask GPT with full context
+    const assistantReply = await getOpenApiResponse(messagesForGPT);
+
+    // 🛑 SAFETY CHECK
+    if (!assistantReply) {
+      return res.status(500).json({ error: "Empty AI response" });
+    }
+
+    // 4️⃣ Save assistant reply
     thread.messages.push({
       role: "assistant",
-      content: assistantReply
+      content: assistantReply,
     });
 
+    thread.updatedAt = new Date();
     await thread.save();
 
     res.json({ reply: assistantReply });
   } catch (err) {
-    console.error(err);
+    console.error("Chat error:", err);
     res.status(500).json({ error: "Something went wrong" });
   }
 });

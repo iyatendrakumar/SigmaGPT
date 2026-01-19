@@ -7,6 +7,8 @@ function ForgotPassword({ onBack }) {
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -18,18 +20,18 @@ function ForgotPassword({ onBack }) {
     try {
       const res = await sendResetOtp({ email });
 
-      if (!res.success) {
-        setError(res.message || "Failed to send OTP");
-        setLoading(false);
+      // ✅ FIX
+      if (!res?.message) {
+        setError("Failed to send OTP");
         return;
       }
 
       setStep(2);
     } catch {
       setError("Something went wrong");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const reset = async (e) => {
@@ -44,9 +46,9 @@ function ForgotPassword({ onBack }) {
         newPassword: password
       });
 
-      if (!res.success) {
-        setError(res.message || "Invalid OTP");
-        setLoading(false);
+      // ✅ FIX
+      if (!res?.message) {
+        setError("Invalid OTP");
         return;
       }
 
@@ -54,9 +56,9 @@ function ForgotPassword({ onBack }) {
       onBack();
     } catch {
       setError("Password reset failed");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
@@ -65,6 +67,7 @@ function ForgotPassword({ onBack }) {
         {step === 1 ? (
           <>
             <h2>Forgot Password</h2>
+
             <form onSubmit={sendOtp}>
               <input
                 placeholder="Email"
@@ -72,23 +75,22 @@ function ForgotPassword({ onBack }) {
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
+
               {error && <p className="error">{error}</p>}
+
               <button disabled={loading}>
                 {loading ? "Sending OTP..." : "Send OTP"}
               </button>
             </form>
+
             <p className="authHint">
-              <span
-                style={{ cursor: "pointer", textDecoration: "underline" }}
-                onClick={onBack}
-              >
-                Back to login
-              </span>
+              <span onClick={onBack}>← Back to login</span>
             </p>
           </>
         ) : (
           <>
             <h2>Reset Password</h2>
+
             <form onSubmit={reset}>
               <input
                 placeholder="OTP"
@@ -96,18 +98,33 @@ function ForgotPassword({ onBack }) {
                 onChange={(e) => setOtp(e.target.value)}
                 required
               />
-              <input
-                type="password"
-                placeholder="New Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+
+              <div className="passwordField">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="New Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <span
+                  className="passwordToggle"
+                  onClick={() => setShowPassword(p => !p)}
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </span>
+              </div>
+
               {error && <p className="error">{error}</p>}
+
               <button disabled={loading}>
                 {loading ? "Resetting..." : "Reset Password"}
               </button>
             </form>
+
+            <p className="authHint">
+              <span onClick={onBack}>← Back to login</span>
+            </p>
           </>
         )}
       </div>

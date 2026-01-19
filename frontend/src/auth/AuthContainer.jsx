@@ -6,11 +6,11 @@ import ForgotPassword from "./ForgotPassword";
 
 function AuthContainer() {
   const navigate = useNavigate();
-  const location = useLocation();
+  const { pathname } = useLocation();
 
-  const screen = location.pathname;
+  /* ================= REGISTER FLOW ================= */
 
-  if (screen === "/register") {
+  if (pathname === "/register") {
     return (
       <Register
         onOtpSent={({ email }) => {
@@ -21,20 +21,24 @@ function AuthContainer() {
     );
   }
 
-  if (screen === "/verify-otp") {
+  if (pathname === "/verify-otp") {
     return (
       <VerifyOtp
         email={sessionStorage.getItem("otpEmail")}
         onSuccess={() => navigate("/login")}
+        onBack={() => navigate("/register")}
       />
     );
   }
 
-  if (screen === "/forgot-password") {
+  /* ================= FORGOT PASSWORD ================= */
+
+  if (pathname === "/forgot-password") {
     return <ForgotPassword onBack={() => navigate("/login")} />;
   }
 
-  // default = login
+  /* ================= DEFAULT (LOGIN) ================= */
+
   return (
     <Login
       onRegister={() => navigate("/register")}

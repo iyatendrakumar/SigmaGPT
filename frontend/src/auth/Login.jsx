@@ -36,6 +36,7 @@ function Login({ onRegister, onForgot }) {
       setUser(res.user);
     } catch (err) {
       setError("Something went wrong");
+      
     }
 
     setLoading(false);
