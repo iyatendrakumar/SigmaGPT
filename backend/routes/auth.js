@@ -9,7 +9,6 @@ const router = express.Router();
 
 /* ================= REGISTER ================= */
 
-// SEND OTP
 router.post("/register/send-otp", async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -18,30 +17,45 @@ router.post("/register/send-otp", async (req, res) => {
       return res.status(400).json({ message: "All fields required" });
     }
 
-    const exists = await User.findOne({ email });
-    if (exists) {
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser && existingUser.isVerified) {
       return res.status(400).json({ message: "User already exists" });
     }
 
     const otp = generateOtp();
     const hashedPassword = await hashPassword(password);
 
-    const user = await User.create({
+    if (existingUser && !existingUser.isVerified) {
+      existingUser.name = name;
+      existingUser.password = hashedPassword;
+      existingUser.otp = otp;
+      existingUser.otpExpiresAt = Date.now() + 5 * 60 * 1000;
+
+      await existingUser.save();
+      await sendOtpMail(email, otp, "registration");
+
+      return res.json({ success: true, message: "OTP resent for registration" });
+    }
+
+    await User.create({
       name,
       email,
       password: hashedPassword,
       otp,
       otpExpiresAt: Date.now() + 5 * 60 * 1000,
+      isVerified: false
     });
 
     await sendOtpMail(email, otp, "registration");
 
-    return res.json({ message: "OTP sent for registration" });
+    res.json({ success: true, message: "OTP sent for registration" });
   } catch (err) {
-    console.error("REGISTER OTP ERROR 👉", err);
-    return res.status(500).json({ message: "Server error" });
+    console.error("REGISTER SEND OTP ERROR:", err);
+    res.status(500).json({ message: "Server error" });
   }
 });
+
 
 // VERIFY OTP
 router.post("/register/verify-otp", async (req, res) => {
